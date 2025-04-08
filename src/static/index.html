@@ -19,6 +19,42 @@
           <!-- Activities will be loaded here -->
           <p>Loading activities...</p>
         </div>
+        <!-- Add this script to dynamically populate participants -->
+        <script>
+          document.addEventListener("DOMContentLoaded", async () => {
+            const activitiesList = document.getElementById("activities-list");
+            activitiesList.innerHTML = ""; // Clear loading message
+
+            try {
+              const response = await fetch("/activities");
+              const activities = await response.json();
+
+              for (const [activityName, activityDetails] of Object.entries(activities)) {
+                const card = document.createElement("div");
+                card.className = "activity-card";
+
+                card.innerHTML = `
+                  <h4>${activityName}</h4>
+                  <p>${activityDetails.description}</p>
+                  <p><strong>Schedule:</strong> ${activityDetails.schedule}</p>
+                  <p><strong>Max Participants:</strong> ${activityDetails.max_participants}</p>
+                  <div>
+                    <strong>Participants:</strong>
+                    <ul>
+                      ${activityDetails.participants.length > 0
+                        ? activityDetails.participants.map(participant => `<li>${participant}</li>`).join("")
+                        : "<li>No participants yet</li>"}
+                    </ul>
+                  </div>
+                `;
+
+                activitiesList.appendChild(card);
+              }
+            } catch (error) {
+              activitiesList.innerHTML = "<p>Error loading activities. Please try again later.</p>";
+            }
+          });
+        </script>
       </section>
 
       <section id="signup-container">
